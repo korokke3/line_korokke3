@@ -2,44 +2,34 @@
 
 import os
 import sys
-from argparse import ArgumentParser
-
 from flask import Flask, request, abort
-from linebot import (
-    WebhookParser
+from linebot.v3 import WebhookHandler
+from linebot.v3.messaging import (
+    Configuration, ApiClient, MessagingApi,
+    ReplyMessageRequest, TextMessage
+)
+from linebot.v3.webhooks import (
+    MessageEvent, TextMessageContent
 )
 from linebot.v3.exceptions import (
     InvalidSignatureError
-)
-from linebot.v3.webhooks import (
-    MessageEvent,
-    TextMessageContent,
-)
-from linebot.v3.messaging import (
-    Configuration,
-    ApiClient,
-    MessagingApi,
-    ReplyMessageRequest,
-    TextMessage
 )
 
 app = Flask(__name__)
 
 # 環境変数から取得
-channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
-channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
-if channel_secret is None:
-    print('Specify LINE_CHANNEL_SECRET as environment variable.')
-    sys.exit(1)
-if channel_access_token is None:
-    print('Specify LINE_CHANNEL_ACCESS_TOKEN as environment variable.')
+channel_secret = os.getenv('LINE_CHANNEL_SECRET')
+channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN')
+if channel_secret is None or channel_access_token is None:
+    print("環境変数が足りません")
     sys.exit(1)
 
-parser = WebhookParser(channel_secret)
+# 新SDK用：ハンドラー作成
+handler = WebhookHandler(channel_secret)
 
-configuration = Configuration(
-    access_token=channel_access_token
-)
+# 通信用設定
+configuration = Configuration(access_token=channel_access_token)
+
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -48,32 +38,26 @@ def callback():
     app.logger.info("Request body: " + body)
 
     try:
-        events = parser.parse(body, signature)
+        handler.handle(body, signature)
     except InvalidSignatureError:
         abort(400)
 
-    for event in events:
-        if not isinstance(event, MessageEvent):
-            continue
-        if not isinstance(event.message, TextMessageContent):
-            continue
+    return "OK"
 
-        with ApiClient(configuration) as api_client:
-            line_bot_api = MessagingApi(api_client)
-            # ↓ ここを固定メッセージに変更しました
-            line_bot_api.reply_message_with_http_info(
-                ReplyMessageRequest(
-                    reply_token=event.reply_token,
-                    messages=[TextMessage(text="こんにちは！Botからの返信だよ")]
-                )
+
+# メッセージイベントの処理
+@handler.add(MessageEvent, message=TextMessageContent)
+def handle_message(event):
+    with ApiClient(configuration) as api_client:
+        line_bot_api = MessagingApi(api_client)
+        line_bot_api.reply_message_with_http_info(
+            ReplyMessageRequest(
+                reply_token=event.reply_token,
+                messages=[TextMessage(text="こんにちは！Botからの返信だよ")]
             )
+        )
 
-    return 'OK'
-
-
-import os
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-
