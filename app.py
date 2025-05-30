@@ -26,7 +26,6 @@ if channel_secret is None or channel_access_token is None:
 handler = WebhookHandler(channel_secret)
 configuration = Configuration(access_token=channel_access_token)
 
-
 @app.route("/callback", methods=['POST'])
 def callback():
     signature = request.headers['X-Line-Signature']
@@ -40,8 +39,6 @@ def callback():
 
     return "OK"
 
-
-# メッセージイベントの処理
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
     user_message = event.message.text.strip()
@@ -53,30 +50,59 @@ def handle_message(event):
             api_key = os.getenv("APEX_API_KEY")
             url = f"https://api.mozambiquehe.re/maprotation?auth={api_key}&version=2"
 
-
             try:
                 response = requests.get(url)
-                app.logger.info("ステータスコード: %s", response.status_code)
-                app.logger.info("レスポンス本文（raw）: %s", response.text)  # ← ここが重要！
-
                 data = response.json()
                 app.logger.info("APIレスポンス: %s", data)
 
-                if "battle_royale" not in data:
-                    reply_text = f"APIエラー: {data.get('Error', '不明なエラー')}"
-                else:
-                    current_map = data["battle_royale"]["current"]["map"]
-                    remaining_timer = data["battle_royale"]["current"]["remainingTimer"]
-                    next_map = data["battle_royale"]["next"]["map"]
+                reply_lines = []
 
-                    reply_text = f"🗺 現在のマップ: {current_map}\n⏳ 終了まで: {remaining_timer}\n➡️ 次のマップ: {next_map}"
+                # カジュアル
+                if "battle_royale" in data:
+                    br = data["battle_royale"]
+                    reply_lines.append("\U0001F5FA **カジュアル**")
+                    reply_lines.append(f"現在のマップ: {br['current']['map']}（あと{br['current']['remainingTimer']}）")
+                    reply_lines.append(f"次のマップ: {br['next']['map']}")
+                    reply_lines.append("")
+
+                # ランク
+                if "ranked" in data:
+                    rk = data["ranked"]
+                    reply_lines.append("\U0001F3C6 **ランクリーグ**")
+                    reply_lines.append(f"現在のマップ: {rk['current']['map']}（あと{rk['current']['remainingTimer']}）")
+                    reply_lines.append(f"次のマップ: {rk['next']['map']}")
+                    reply_lines.append("")
+
+                # LTM
+                ltm_modes = []
+                if "ltm" in data:
+                    ltm = data["ltm"]
+                    cur_mode = ltm["current"]
+                    next_mode = ltm["next"]
+
+                    known_mix = ["Control", "Gun Run", "Team Deathmatch"]
+                    if cur_mode["eventName"] in known_mix:
+                        # ミックステープ
+                        reply_lines.append("\U0001F3AE **ミックステープ**")
+                        reply_lines.append(f"現在のモード: {cur_mode['eventName']}（マップ: {cur_mode['map']}、あと{cur_mode['remainingTimer']}）")
+                        reply_lines.append(f"次のモード: {next_mode['eventName']}（マップ: {next_mode['map']}）")
+                        reply_lines.append("")
+                    else:
+                        # 期間限定モード
+                        reply_lines.append("⏱ **期間限定モード**")
+                        reply_lines.append(f"現在: {cur_mode['eventName']}（マップ: {cur_mode['map']}、あと{cur_mode['remainingTimer']}）")
+                        reply_lines.append(f"次: {next_mode['eventName']}（マップ: {next_mode['map']}）")
+                        reply_lines.append("")
+                else:
+                    reply_lines.append("⏱ **期間限定モード**")
+                    reply_lines.append("現在: ❌ 開催されていません")
+
+                reply_text = "\n".join(reply_lines)
 
             except Exception as e:
                 app.logger.error("マップAPI取得エラー: %s", e)
                 reply_text = "マップ情報を取得できませんでした。"
-
         else:
-            # 通常のエコー応答
             reply_text = f"受け取ったメッセージ: {user_message}"
 
         line_bot_api.reply_message_with_http_info(
@@ -85,7 +111,6 @@ def handle_message(event):
                 messages=[TextMessage(text=reply_text)]
             )
         )
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
