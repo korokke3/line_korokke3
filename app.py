@@ -26,9 +26,29 @@ if channel_secret is None or channel_access_token is None:
 handler = WebhookHandler(channel_secret)
 configuration = Configuration(access_token=channel_access_token)
 
+# 英語マップ名→日本語マップ名の辞書
+MAP_TRANSLATIONS = {
+    "World's Edge": "ワールズエッジ",
+    "Fragment East": "フラグメント・イースト",
+    "Fragment West": "フラグメント・ウエスト",
+    "Storm Point": "ストームポイント",
+    "Broken Moon": "ブロークンムーン",
+    "Olympus": "オリンパス",
+    "Kings Canyon": "キングスキャニオン",
+    "Thunderdome": "サンダードーム",
+    "Overflow": "オーバーフロー",
+    "Habitat 4": "ハビタット4",
+    "Production Yard": "プロダクション・ヤード",
+    "Skulltown": "スカルタウン",
+    "Unknown": "不明"
+}
+
+def translate_map_name(name):
+    return MAP_TRANSLATIONS.get(name, name)
+
 @app.route("/callback", methods=['POST'])
 def callback():
-    signature = request.headers['X-Line-Signature']
+    signature = request.headers.get('X-Line-Signature')
     body = request.get_data(as_text=True)
     app.logger.info("Request body: " + body)
 
@@ -43,67 +63,46 @@ def callback():
 def handle_message(event):
     user_message = event.message.text.strip()
 
+    # 「?マップ」以外は無視
+    if user_message != "?マップ":
+        return
+
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
 
-        if user_message == "?マップ":
-            api_key = os.getenv("APEX_API_KEY")
-            url = f"https://api.mozambiquehe.re/maprotation?auth={api_key}&version=2"
+        api_key = os.getenv("APEX_API_KEY")
+        url = f"https://api.mozambiquehe.re/maprotation?version=2&auth={api_key}"
 
-            try:
-                response = requests.get(url)
-                data = response.json()
-                app.logger.info("APIレスポンス: %s", data)
+        try:
+            response = requests.get(url)
+            data = response.json()
+            app.logger.info("APIレスポンス: %s", data)
 
-                reply_lines = []
+            if "battle_royale" not in data:
+                reply_text = f"APIエラー: {data.get('Error', '不明なエラー')}"
+            else:
+                br = data.get("battle_royale", {})
+                ranked = data.get("ranked", {})
+                mixtape = data.get("mixtape", {})
+                ltm = data.get("ltm", {})
 
-                # カジュアル
-                if "battle_royale" in data:
-                    br = data["battle_royale"]
-                    reply_lines.append("\U0001F5FA **カジュアル**")
-                    reply_lines.append(f"現在のマップ: {br['current']['map']}（あと{br['current']['remainingTimer']}）")
-                    reply_lines.append(f"次のマップ: {br['next']['map']}")
-                    reply_lines.append("")
+                def get_info(mode_data, label):
+                    if "current" not in mode_data:
+                        return f"❌ {label}：情報なし\n"
+                    current = translate_map_name(mode_data["current"]["map"])
+                    timer = mode_data["current"]["remainingTimer"]
+                    return f"🗺 {label}: {current}（あと{timer}）\n"
 
-                # ランク
-                if "ranked" in data:
-                    rk = data["ranked"]
-                    reply_lines.append("\U0001F3C6 **ランクリーグ**")
-                    reply_lines.append(f"現在のマップ: {rk['current']['map']}（あと{rk['current']['remainingTimer']}）")
-                    reply_lines.append(f"次のマップ: {rk['next']['map']}")
-                    reply_lines.append("")
+                reply_text = (
+                    get_info(br, "カジュアル") +
+                    get_info(ranked, "ランク") +
+                    get_info(mixtape, "ミックステープ") +
+                    get_info(ltm, "期間限定")
+                )
 
-                # LTM
-                ltm_modes = []
-                if "ltm" in data:
-                    ltm = data["ltm"]
-                    cur_mode = ltm["current"]
-                    next_mode = ltm["next"]
-
-                    known_mix = ["Control", "Gun Run", "Team Deathmatch"]
-                    if cur_mode["eventName"] in known_mix:
-                        # ミックステープ
-                        reply_lines.append("\U0001F3AE **ミックステープ**")
-                        reply_lines.append(f"現在のモード: {cur_mode['eventName']}（マップ: {cur_mode['map']}、あと{cur_mode['remainingTimer']}）")
-                        reply_lines.append(f"次のモード: {next_mode['eventName']}（マップ: {next_mode['map']}）")
-                        reply_lines.append("")
-                    else:
-                        # 期間限定モード
-                        reply_lines.append("⏱ **期間限定モード**")
-                        reply_lines.append(f"現在: {cur_mode['eventName']}（マップ: {cur_mode['map']}、あと{cur_mode['remainingTimer']}）")
-                        reply_lines.append(f"次: {next_mode['eventName']}（マップ: {next_mode['map']}）")
-                        reply_lines.append("")
-                else:
-                    reply_lines.append("⏱ **期間限定モード**")
-                    reply_lines.append("現在: ❌ 開催されていません")
-
-                reply_text = "\n".join(reply_lines)
-
-            except Exception as e:
-                app.logger.error("マップAPI取得エラー: %s", e)
-                reply_text = "マップ情報を取得できませんでした。"
-        else:
-            reply_text = f"受け取ったメッセージ: {user_message}"
+        except Exception as e:
+            app.logger.error("マップAPI取得エラー: %s", e)
+            reply_text = "マップ情報を取得できませんでした。"
 
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
