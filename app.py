@@ -56,7 +56,7 @@ def handle_message(event):
             try:
                 response = requests.get(url)
                 app.logger.info("ステータスコード: %s", response.status_code)
-                app.logger.info("レスポンス本文（raw）: %s", response.text)
+                app.logger.info("レスポンス本文（raw）: %s", response.text)  # ← ここが重要！
 
                 data = response.json()
                 app.logger.info("APIレスポンス: %s", data)
