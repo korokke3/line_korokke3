@@ -87,16 +87,16 @@ def handle_message(event):
                 if "battle_royale" in data:
                     br = data["battle_royale"]
                     reply_lines.append("\U0001F5FA **カジュアル**")
-                    reply_lines.append(f"現在のマップ: {br['current']['map']}（あと{br['current']['remainingTimer']}）")
-                    reply_lines.append(f"次のマップ: {br['next']['map']}")
+                    reply_lines.append(f"現在のマップ: {translate_map_name(br['current']['map'])}（あと{br['current']['remainingTimer']}）")
+                    reply_lines.append(f"次のマップ: {translate_map_name(br['next']['map'])}")
                     reply_lines.append("")
 
                 # ランク
                 if "ranked" in data:
                     rk = data["ranked"]
                     reply_lines.append("\U0001F3C6 **ランクリーグ**")
-                    reply_lines.append(f"現在のマップ: {rk['current']['map']}（あと{rk['current']['remainingTimer']}）")
-                    reply_lines.append(f"次のマップ: {rk['next']['map']}")
+                    reply_lines.append(f"現在のマップ: {translate_map_name(rk['current']['map'])}（あと{rk['current']['remainingTimer']}）")
+                    reply_lines.append(f"次のマップ: {translate_map_name(rk['next']['map'])}")
                     reply_lines.append("")
 
                 # LTM
@@ -110,14 +110,14 @@ def handle_message(event):
                     if cur_mode["eventName"] in known_mix:
                         # ミックステープ
                         reply_lines.append("\U0001F3AE **ミックステープ**")
-                        reply_lines.append(f"現在のモード: {cur_mode['eventName']}（マップ: {cur_mode['map']}、あと{cur_mode['remainingTimer']}）")
-                        reply_lines.append(f"次のモード: {next_mode['eventName']}（マップ: {next_mode['map']}）")
+                        reply_lines.append(f"現在のモード: {translate_map_name(cur_mode['eventName'])}（マップ: {translate_map_name(cur_mode['map'])}、あと{cur_mode['remainingTimer']}）")
+                        reply_lines.append(f"次のモード: {translate_map_name(next_mode['eventName'])}（マップ: {translate_map_name(next_mode['map'])}）")
                         reply_lines.append("")
                     else:
                         # 期間限定モード
                         reply_lines.append("⏱ **期間限定モード**")
-                        reply_lines.append(f"現在: {cur_mode['eventName']}（マップ: {cur_mode['map']}、あと{cur_mode['remainingTimer']}）")
-                        reply_lines.append(f"次: {next_mode['eventName']}（マップ: {next_mode['map']}）")
+                        reply_lines.append(f"現在: {translate_map_name(cur_mode['eventName'])}（マップ: {translate_map_name(cur_mode['map'])}、あと{cur_mode['remainingTimer']}）")
+                        reply_lines.append(f"次: {translate_map_name(next_mode['eventName'])}（マップ: {translate_map_name(next_mode['map'])}）")
                         reply_lines.append("")
                 else:
                     reply_lines.append("⏱ **期間限定モード**")
