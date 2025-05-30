@@ -43,18 +43,18 @@ MAP_TRANSLATIONS = {
     "Skulltown": "スカルタウン",
     "Monument": "モニュメント",
     "E-District": "エレクトロ地区",
-    "Control": "コントロール",
+    "Control": "コントロール", # モード名
     "Gun Run": "ガンゲーム",
     "Team Deathmatch": "チームデスマッチ",
     "Unknown": "不明、エラー"
 }
 
-def translate(name):
+def translate_map_name(name):
     return MAP_TRANSLATIONS.get(name, name)
 
 @app.route("/callback", methods=['POST'])
 def callback():
-    signature = request.headers.get('X-Line-Signature')
+    signature = request.headers['X-Line-Signature']
     body = request.get_data(as_text=True)
     app.logger.info("Request body: " + body)
 
@@ -69,55 +69,67 @@ def callback():
 def handle_message(event):
     user_message = event.message.text.strip()
 
-    if user_message != "?マップ":
-        return
-
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
 
-        api_key = os.getenv("APEX_API_KEY")
-        url = f"https://api.mozambiquehe.re/maprotation?version=2&auth={api_key}"
+        if user_message == "?マップ":
+            api_key = os.getenv("APEX_API_KEY")
+            url = f"https://api.mozambiquehe.re/maprotation?auth={api_key}&version=2"
 
-        try:
-            response = requests.get(url)
-            data = response.json()
+            try:
+                response = requests.get(url)
+                data = response.json()
+                app.logger.info("APIレスポンス: %s", data)
 
-            if "battle_royale" not in data:
-                reply_text = f"APIエラー: {data.get('Error', '不明なエラー')}"
-            else:
-                # カジュアルとランク
-                def format_mode(mode, label, emoji):
-                    curr = mode.get("current", {})
-                    nxt = mode.get("next", {})
-                    curr_map = translate(curr.get("map", "不明"))
-                    curr_time = curr.get("remainingTimer", "不明")
-                    nxt_map = translate(nxt.get("map", "不明"))
-                    return f"{emoji} {label} \n現在のマップ: {curr_map}（あと{curr_time}）\n次のマップ: {nxt_map}\n"
+                reply_lines = []
 
-                # ミックステープ
-                def format_mixtape(mode):
-                    curr = mode.get("current", {})
-                    nxt = mode.get("next", {})
-                    curr_mode = translate(curr.get("gameMode", "不明"))
-                    curr_map = translate(curr.get("map", "不明"))
-                    curr_time = curr.get("remainingTimer", "不明")
-                    nxt_mode = translate(nxt.get("gameMode", "不明"))
-                    nxt_map = translate(nxt.get("map", "不明"))
-                    return (
-                        f"🎮 ミックステープ \n"
-                        f"現在のモード: {curr_mode}（マップ: {curr_map}、あと{curr_time}）\n"
-                        f"次のモード: {nxt_mode}（マップ: {nxt_map}）"
-                    )
+                # カジュアル
+                if "battle_royale" in data:
+                    br = data["battle_royale"]
+                    reply_lines.append("\U0001F5FA **カジュアル**")
+                    reply_lines.append(f"現在のマップ: {br['current']['map']}（あと{br['current']['remainingTimer']}）")
+                    reply_lines.append(f"次のマップ: {br['next']['map']}")
+                    reply_lines.append("")
 
-                reply_text = (
-                    format_mode(data["battle_royale"], "カジュアル", "🗺") + "\n" +
-                    format_mode(data["ranked"], "ランクリーグ", "🏆") + "\n" +
-                    format_mixtape(data["mixtape"])
-                )
+                # ランク
+                if "ranked" in data:
+                    rk = data["ranked"]
+                    reply_lines.append("\U0001F3C6 **ランクリーグ**")
+                    reply_lines.append(f"現在のマップ: {rk['current']['map']}（あと{rk['current']['remainingTimer']}）")
+                    reply_lines.append(f"次のマップ: {rk['next']['map']}")
+                    reply_lines.append("")
 
-        except Exception as e:
-            app.logger.error("マップAPI取得エラー: %s", e)
-            reply_text = "マップ情報を取得できませんでした。"
+                # LTM
+                ltm_modes = []
+                if "ltm" in data:
+                    ltm = data["ltm"]
+                    cur_mode = ltm["current"]
+                    next_mode = ltm["next"]
+
+                    known_mix = ["Control", "Gun Run", "Team Deathmatch"]
+                    if cur_mode["eventName"] in known_mix:
+                        # ミックステープ
+                        reply_lines.append("\U0001F3AE **ミックステープ**")
+                        reply_lines.append(f"現在のモード: {cur_mode['eventName']}（マップ: {cur_mode['map']}、あと{cur_mode['remainingTimer']}）")
+                        reply_lines.append(f"次のモード: {next_mode['eventName']}（マップ: {next_mode['map']}）")
+                        reply_lines.append("")
+                    else:
+                        # 期間限定モード
+                        reply_lines.append("⏱ **期間限定モード**")
+                        reply_lines.append(f"現在: {cur_mode['eventName']}（マップ: {cur_mode['map']}、あと{cur_mode['remainingTimer']}）")
+                        reply_lines.append(f"次: {next_mode['eventName']}（マップ: {next_mode['map']}）")
+                        reply_lines.append("")
+                else:
+                    reply_lines.append("⏱ **期間限定モード**")
+                    reply_lines.append("現在: ❌ 開催されていません")
+
+                reply_text = "\n".join(reply_lines)
+
+            except Exception as e:
+                app.logger.error("マップAPI取得エラー: %s", e)
+                reply_text = "マップ情報を取得できませんでした。"
+        else:
+            reply_text = f"受け取ったメッセージ: {user_message}"
 
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
