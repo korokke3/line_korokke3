@@ -54,17 +54,19 @@ def handle_message(event):
             url = f"https://api.mozambiquehe.re/maprotation?auth={api_key}"
 
             try:
-                response = requests.get(url)
-                data = response.json()
-                app.logger.info("APIレスポンス: %s", data)
+    response = requests.get(url)
+    data = response.json()
+    app.logger.info("APIレスポンス: %s", data)
 
-                current_map = data["battle_royale"]["current"]["map"]
-                remaining_timer = data["battle_royale"]["current"]["remainingTimer"]
-                next_map = data["battle_royale"]["next"]["map"]
+    current_map = data["battle_royale"]["current"]["map"]
+    remaining_timer = data["battle_royale"]["current"]["remainingTimer"]
+    next_map = data["battle_royale"]["next"]["map"]
 
-                reply_text = f"🗺 現在のマップ: {current_map}\n⏳ 終了まで: {remaining_timer}\n➡️ 次のマップ: {next_map}"
-            except Exception as e:
-                reply_text = "マップ情報を取得できませんでした。"
+    reply_text = f"🗺 現在のマップ: {current_map}\n⏳ 終了まで: {remaining_timer}\n➡️ 次のマップ: {next_map}"
+except Exception as e:
+    app.logger.error("マップAPI取得エラー: %s", e)
+    reply_text = "マップ情報を取得できませんでした。"
+
         else:
             # 通常のエコー応答
             reply_text = f"受け取ったメッセージ: {user_message}"
