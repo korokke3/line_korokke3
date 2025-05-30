@@ -51,7 +51,8 @@ def handle_message(event):
 
         if user_message == "?マップ":
             api_key = os.getenv("APEX_API_KEY")
-            url = f"https://api.mozambiquehe.re/maprotation?auth={api_key}"
+            url = f"https://api.mozambiquehe.re/maprotation?auth={api_key}&version=2"
+
 
             try:
                 response = requests.get(url)
