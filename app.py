@@ -43,6 +43,8 @@ MAP_TRANSLATIONS = {
     "Skulltown": "スカルタウン",
     "Monument": "モニュメント",
     "E-District": "エレクトロ地区",
+    "Siphon": "ラバサイフォン",
+    "Estates": "エステート",
     "Control": "コントロール", # モード名
     "Gun Run": "ガンゲーム",
     "Team Deathmatch": "チームデスマッチ",
