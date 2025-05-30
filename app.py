@@ -2,6 +2,7 @@
 
 import os
 import sys
+import requests
 from flask import Flask, request, abort
 from linebot.v3 import WebhookHandler
 from linebot.v3.messaging import (
@@ -11,9 +12,7 @@ from linebot.v3.messaging import (
 from linebot.v3.webhooks import (
     MessageEvent, TextMessageContent
 )
-from linebot.v3.exceptions import (
-    InvalidSignatureError
-)
+from linebot.v3.exceptions import InvalidSignatureError
 
 app = Flask(__name__)
 
@@ -24,10 +23,7 @@ if channel_secret is None or channel_access_token is None:
     print("環境変数が足りません")
     sys.exit(1)
 
-# 新SDK用：ハンドラー作成
 handler = WebhookHandler(channel_secret)
-
-# 通信用設定
 configuration = Configuration(access_token=channel_access_token)
 
 
@@ -48,12 +44,34 @@ def callback():
 # メッセージイベントの処理
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
+    user_message = event.message.text.strip()
+
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
+
+        if user_message == "?マップ":
+            api_key = os.getenv("APEX_API_KEY")
+            url = f"https://api.mozambiquehe.re/map?auth={api_key}"
+
+            try:
+                response = requests.get(url)
+                data = response.json()
+
+                current_map = data["battle_royale"]["current"]["map"]
+                remaining_timer = data["battle_royale"]["current"]["remainingTimer"]
+                next_map = data["battle_royale"]["next"]["map"]
+
+                reply_text = f"🗺 現在のマップ: {current_map}\n⏳ 終了まで: {remaining_timer}\n➡️ 次のマップ: {next_map}"
+            except Exception as e:
+                reply_text = "マップ情報を取得できませんでした。"
+        else:
+            # 通常のエコー応答
+            reply_text = f"受け取ったメッセージ: {user_message}"
+
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
                 reply_token=event.reply_token,
-                messages=[TextMessage(text="こんにちは！Botからの返信だよ")]
+                messages=[TextMessage(text=reply_text)]
             )
         )
 
