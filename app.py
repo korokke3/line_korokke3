@@ -56,7 +56,7 @@ def handle_message(event):
             try:
                 response = requests.get(url)
                 data = response.json()
-                print("APIレスポンス:", data) 
+                app.logger.info("APIレスポンス: %s", data)
 
                 current_map = data["battle_royale"]["current"]["map"]
                 remaining_timer = data["battle_royale"]["current"]["remainingTimer"]
