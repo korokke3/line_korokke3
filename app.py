@@ -71,6 +71,10 @@ def callback():
 def handle_message(event):
     user_message = event.message.text.strip()
 
+    # 「?マップ」以外には一切反応しない
+    if user_message != "?マップ":
+        return
+
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
 
