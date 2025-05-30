@@ -37,10 +37,16 @@ MAP_TRANSLATIONS = {
     "Kings Canyon": "キングスキャニオン",
     "Thunderdome": "サンダードーム",
     "Overflow": "オーバーフロー",
-    "Habitat 4": "ハビタット4",
-    "Production Yard": "プロダクション・ヤード",
+    "Habitat 4": "生息地4",
+    "Encore": "アンコール",
+    "Production Yard": "生産工場",
     "Skulltown": "スカルタウン",
-    "Unknown": "不明"
+    "Monument": "モニュメント",
+    "E-District": "エレクトロ地区",
+    "Control": "コントロール", # モード名
+    "Gun Run": "ガンゲーム",
+    "Team Deathmatch": "チームデスマッチ",
+    "Unknown": "不明、エラー"
 }
 
 def translate_map_name(name):
