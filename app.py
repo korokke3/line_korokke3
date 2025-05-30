@@ -130,8 +130,6 @@ def handle_message(event):
             except Exception as e:
                 app.logger.error("マップAPI取得エラー: %s", e)
                 reply_text = "マップ情報を取得できませんでした。"
-        else:
-            reply_text = f"受け取ったメッセージ: {user_message}"
 
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
