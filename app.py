@@ -43,13 +43,13 @@ MAP_TRANSLATIONS = {
     "Skulltown": "スカルタウン",
     "Monument": "モニュメント",
     "E-District": "エレクトロ地区",
-    "Control": "コントロール", # モード名
+    "Control": "コントロール",
     "Gun Run": "ガンゲーム",
     "Team Deathmatch": "チームデスマッチ",
     "Unknown": "不明、エラー"
 }
 
-def translate_map_name(name):
+def translate(name):
     return MAP_TRANSLATIONS.get(name, name)
 
 @app.route("/callback", methods=['POST'])
@@ -69,7 +69,6 @@ def callback():
 def handle_message(event):
     user_message = event.message.text.strip()
 
-    # 「?マップ」以外は無視
     if user_message != "?マップ":
         return
 
@@ -82,28 +81,38 @@ def handle_message(event):
         try:
             response = requests.get(url)
             data = response.json()
-            app.logger.info("APIレスポンス: %s", data)
 
             if "battle_royale" not in data:
                 reply_text = f"APIエラー: {data.get('Error', '不明なエラー')}"
             else:
-                br = data.get("battle_royale", {})
-                ranked = data.get("ranked", {})
-                mixtape = data.get("mixtape", {})
-                ltm = data.get("ltm", {})
+                # カジュアルとランク
+                def format_mode(mode, label, emoji):
+                    curr = mode.get("current", {})
+                    nxt = mode.get("next", {})
+                    curr_map = translate(curr.get("map", "不明"))
+                    curr_time = curr.get("remainingTimer", "不明")
+                    nxt_map = translate(nxt.get("map", "不明"))
+                    return f"{emoji} {label} \n現在のマップ: {curr_map}（あと{curr_time}）\n次のマップ: {nxt_map}\n"
 
-                def get_info(mode_data, label):
-                    if "current" not in mode_data:
-                        return f"❌ {label}：情報なし\n"
-                    current = translate_map_name(mode_data["current"]["map"])
-                    timer = mode_data["current"]["remainingTimer"]
-                    return f"🗺 {label}: {current}（あと{timer}）\n"
+                # ミックステープ
+                def format_mixtape(mode):
+                    curr = mode.get("current", {})
+                    nxt = mode.get("next", {})
+                    curr_mode = translate(curr.get("gameMode", "不明"))
+                    curr_map = translate(curr.get("map", "不明"))
+                    curr_time = curr.get("remainingTimer", "不明")
+                    nxt_mode = translate(nxt.get("gameMode", "不明"))
+                    nxt_map = translate(nxt.get("map", "不明"))
+                    return (
+                        f"🎮 ミックステープ \n"
+                        f"現在のモード: {curr_mode}（マップ: {curr_map}、あと{curr_time}）\n"
+                        f"次のモード: {nxt_mode}（マップ: {nxt_map}）"
+                    )
 
                 reply_text = (
-                    get_info(br, "カジュアル") +
-                    get_info(ranked, "ランク") +
-                    get_info(mixtape, "ミックステープ") +
-                    get_info(ltm, "期間限定")
+                    format_mode(data["battle_royale"], "カジュアル", "🗺") + "\n" +
+                    format_mode(data["ranked"], "ランクリーグ", "🏆") + "\n" +
+                    format_mixtape(data["mixtape"])
                 )
 
         except Exception as e:
