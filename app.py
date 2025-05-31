@@ -160,8 +160,6 @@ def handle_message(event):
                 ReplyMessageRequest(
                     reply_token=event.reply_token,
                     messages=[TextMessage(text=reply_text)]
-                )
-            )
 			
 		elif user_message == "?ヘムロック":
             reply_text = (
