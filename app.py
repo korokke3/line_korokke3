@@ -104,6 +104,7 @@ def callback():
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
     user_message = event.message.text.strip()
+    reply_text = None  # 初期化
 
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
@@ -136,21 +137,17 @@ def handle_message(event):
                     reply_lines.append("")
 
                 # LTM
-                ltm_modes = []
                 if "ltm" in data:
                     ltm = data["ltm"]
                     cur_mode = ltm["current"]
                     next_mode = ltm["next"]
-
                     known_mix = ["Control", "Gun Run", "Team Deathmatch"]
                     if cur_mode["eventName"] in known_mix:
-                        # ミックステープ
                         reply_lines.append("\U0001F3AE ミックステープ")
                         reply_lines.append(f"現在のモード: {translate_map_name(cur_mode['eventName'])}（マップ: {translate_map_name(cur_mode['map'])}、あと{cur_mode['remainingTimer']}）")
                         reply_lines.append(f"次のモード: {translate_map_name(next_mode['eventName'])}（マップ: {translate_map_name(next_mode['map'])}）")
                         reply_lines.append("")
                     else:
-                        # 期間限定モード
                         reply_lines.append("⏱ 期間限定モード")
                         reply_lines.append(f"現在: {translate_map_name(cur_mode['eventName'])}（マップ: {translate_map_name(cur_mode['map'])}、あと{cur_mode['remainingTimer']}）")
                         reply_lines.append(f"次: {translate_map_name(next_mode['eventName'])}（マップ: {translate_map_name(next_mode['map'])}）")
@@ -161,22 +158,23 @@ def handle_message(event):
 
                 reply_text = "\n".join(reply_lines)
 
+            except Exception as e:
+                app.logger.error(f"APIエラー: {e}")
+                reply_text = "APIの取得に失敗しました。後でもう一度試してください。"
+
         elif user_message in WEAPON_RESPONSES:
             reply_text = WEAPON_RESPONSES[user_message]
 
         else:
             return  # それ以外は無視
 
-        if not reply_text:
-            return  # 念のため
-
-        # 共通の返信処理
-        line_bot_api.reply_message_with_http_info(
-            ReplyMessageRequest(
-                reply_token=event.reply_token,
-                messages=[TextMessage(text=reply_text)]
+        if reply_text:
+            line_bot_api.reply_message_with_http_info(
+                ReplyMessageRequest(
+                    reply_token=event.reply_token,
+                    messages=[TextMessage(text=reply_text)]
+                )
             )
-        )
 
 
 if __name__ == "__main__":
