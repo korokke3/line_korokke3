@@ -88,7 +88,7 @@ def handle_message(event):
                 # カジュアル
                 if "battle_royale" in data:
                     br = data["battle_royale"]
-                    reply_lines.append("\U0001F5FA **カジュアル**")
+                    reply_lines.append("\U0001F5FA カジュアル")
                     reply_lines.append(f"現在のマップ: {translate_map_name(br['current']['map'])}（あと{br['current']['remainingTimer']}）")
                     reply_lines.append(f"次のマップ: {translate_map_name(br['next']['map'])}")
                     reply_lines.append("")
@@ -96,7 +96,7 @@ def handle_message(event):
                 # ランク
                 if "ranked" in data:
                     rk = data["ranked"]
-                    reply_lines.append("\U0001F3C6 **ランクリーグ**")
+                    reply_lines.append("\U0001F3C6 ランクリーグ")
                     reply_lines.append(f"現在のマップ: {translate_map_name(rk['current']['map'])}（あと{rk['current']['remainingTimer']}）")
                     reply_lines.append(f"次のマップ: {translate_map_name(rk['next']['map'])}")
                     reply_lines.append("")
@@ -111,18 +111,18 @@ def handle_message(event):
                     known_mix = ["Control", "Gun Run", "Team Deathmatch"]
                     if cur_mode["eventName"] in known_mix:
                         # ミックステープ
-                        reply_lines.append("\U0001F3AE **ミックステープ**")
+                        reply_lines.append("\U0001F3AE ミックステープ")
                         reply_lines.append(f"現在のモード: {translate_map_name(cur_mode['eventName'])}（マップ: {translate_map_name(cur_mode['map'])}、あと{cur_mode['remainingTimer']}）")
                         reply_lines.append(f"次のモード: {translate_map_name(next_mode['eventName'])}（マップ: {translate_map_name(next_mode['map'])}）")
                         reply_lines.append("")
                     else:
                         # 期間限定モード
-                        reply_lines.append("⏱ **期間限定モード**")
+                        reply_lines.append("⏱ 期間限定モード")
                         reply_lines.append(f"現在: {translate_map_name(cur_mode['eventName'])}（マップ: {translate_map_name(cur_mode['map'])}、あと{cur_mode['remainingTimer']}）")
                         reply_lines.append(f"次: {translate_map_name(next_mode['eventName'])}（マップ: {translate_map_name(next_mode['map'])}）")
                         reply_lines.append("")
                 else:
-                    reply_lines.append("⏱ **期間限定モード**")
+                    reply_lines.append("⏱ 期間限定モード")
                     reply_lines.append("現在: ❌ 開催されていません")
 
                 reply_text = "\n".join(reply_lines)
@@ -140,10 +140,21 @@ def handle_message(event):
 
         elif user_message == "?ハボック":
             reply_text = (
-                "🔫 **ハボックライフル（Havoc Rifle）**\n"
-                "- エネルギーアモを使用\n"
-                "- フルオートAR、ターボチャージャー装着で即射撃可能\n"
-                "- 高レート・反動大、近〜中距離で強力"
+                "🔫 ハボックライフル\n"
+                "- 短縮名: ハボック\n"
+                "- 武器種: アサルトライフル\n"
+				"- 使用アモ: エネルギーアモ\n"
+                "- 製造企業1: 시완(Siwhan) Industries\n"
+				"- 製造企業2: Wonyeon\n"
+				"- 連射速度: 11.2発/秒\n"
+				"- ダメージ: 素20 頭26 脚15\n"
+				"- 装填数: 素18 白21 青25 紫29\n"
+				"- リロード時間(秒): 素3.2 白3.09 青2.99 紫2.88\n"
+				"- スピンアップ時間(秒): 素0.42 タボチャ0.01\n"
+				"- 弾速: 約774メートル/秒\n"
+				"- 初取り出しモーション時間: 1.5秒\n"
+				"- ヘッドショット有効距離: 300メートル\n"
+				"- ADS時移動速度倍率: x0.5"
             )
             line_bot_api.reply_message_with_http_info(
                 ReplyMessageRequest(
