@@ -71,10 +71,6 @@ def callback():
 def handle_message(event):
     user_message = event.message.text.strip()
 
-    # 「?マップ」以外には一切反応しない
-    if user_message != "?マップ":
-        return
-
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
 
@@ -135,12 +131,23 @@ def handle_message(event):
                 app.logger.error("マップAPI取得エラー: %s", e)
                 reply_text = "マップ情報を取得できませんでした。"
 
-        line_bot_api.reply_message_with_http_info(
-            ReplyMessageRequest(
-                reply_token=event.reply_token,
-                messages=[TextMessage(text=reply_text)]
+        elif user_message == "?ハボック":
+            reply_text = (
+                "🔫 **ハボックライフル（Havoc Rifle）**\n"
+                "- エネルギーアモを使用\n"
+                "- フルオートAR、ターボチャージャー装着で即射撃可能\n"
+                "- 高レート・反動大、近〜中距離で強力"
             )
-        )
+            line_bot_api.reply_message_with_http_info(
+                ReplyMessageRequest(
+                    reply_token=event.reply_token,
+                    messages=[TextMessage(text=reply_text)]
+                )
+            )
+
+        # それ以外は無視
+        else:
+            return
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
