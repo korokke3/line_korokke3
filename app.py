@@ -127,6 +127,13 @@ def handle_message(event):
 
                 reply_text = "\n".join(reply_lines)
 
+            line_bot_api.reply_message_with_http_info(
+                ReplyMessageRequest(
+                    reply_token=event.reply_token,
+                    messages=[TextMessage(text=reply_text)]
+                 )
+            )
+
             except Exception as e:
                 app.logger.error("マップAPI取得エラー: %s", e)
                 reply_text = "マップ情報を取得できませんでした。"
