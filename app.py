@@ -167,13 +167,17 @@ def handle_message(event):
         else:
             return  # それ以外は無視
 
-        # ここで共通の返信処理
+        if not reply_text:
+            return  # 念のため
+
+        # 共通の返信処理
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
                 reply_token=event.reply_token,
-                messages=[TextMessage(text=reply_text])
+                messages=[TextMessage(text=reply_text)]
             )
         )
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
