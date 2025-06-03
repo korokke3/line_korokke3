@@ -652,7 +652,7 @@ WEAPON_IMAGES = {
 	"?ハボック": "https://apexlegends.wiki.gg/images/e/ec/HAVOC_Rifle.png",
 	"?ヘムロック": "https://apexlegends.wiki.gg/images/7/74/Hemlok_Burst_AR.png",
 	"?フラットライン": "https://apexlegends.wiki.gg/images/f/f1/VK-47_Flatline.png",
-	"?R-301": ""https://apexlegends.wiki.gg/images/f/f1/R-301_Carbine.png",
+	"?R-301": "https://apexlegends.wiki.gg/images/f/f1/R-301_Carbine.png",
 	"?ネメシス: "https://apexlegends.wiki.gg/images/b/b8/Nemesis_Burst_AR.png",
 	"?オルタネーター: "https://apexlegends.wiki.gg/images/e/e9/Alternator_SMG.png",
 	"?プラウラー: "https://apexlegends.wiki.gg/images/b/bf/Prowler_Burst_PDW.png",
