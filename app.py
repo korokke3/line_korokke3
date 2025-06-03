@@ -13,7 +13,6 @@ from linebot.v3.webhooks import (
     MessageEvent, TextMessageContent
 )
 from linebot.v3.exceptions import InvalidSignatureError
-from linebot.v3.messaging.models import ImageMessage
 
 app = Flask(__name__)
 
@@ -522,7 +521,6 @@ def handle_message(event):
 
         elif user_message in WEAPON_RESPONSES:
             reply_text = WEAPON_RESPONSES[user_message]
-            image_url = WEAPON_IMAGES.get(user_text)
 
         else:
             return  # それ以外は無視
