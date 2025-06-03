@@ -433,6 +433,26 @@ WEAPON_RESPONSES = {
 		"- ヘッドショット有効距離: 750メートル\n"
 		"- ADS時移動速度倍率: x0.35"
 	),
+	"?センチネル": (
+		"🔫 センチネル\n"
+		"- 武器種: スナイパーライフル\n"
+		"- 使用アモ: スナイパーアモ\n"
+		"- 製造元: Paradinha Arsenal\n"
+		"- 射撃モード: セミオート\n"
+		"- 連射速度: 約0.51発/秒\n"
+		"- リチャンバー時間: 1.6秒\n"
+		"- 増幅時間: 150秒\n"
+		"- 射撃による増幅時間の減少量: 14秒/発\n"
+		"- ダメージ(通常): 素70 頭126 脚63\n"
+		"- ダメージ(増幅): 素88 頭158 脚72\n"
+		"- 装填数: 素4 白5 青6 紫7\n"
+		"- タクティカルリロード時間(秒): 素3.00 白2.90 青2.80 紫2.70\n"
+		"- フルリロード時間(秒): 素4.00 白3.87 青3.73 紫3.60\n"
+		"- 弾速: 約787メートル/秒\n"
+		"- 初取り出しモーション時間: 1.6秒\n"
+		"- ヘッドショット有効距離: 750メートル\n"
+		"- ADS時移動速度倍率: x0.35"
+	),
 	"?クレーバー": (
 		"🔫 クレーバー.50スナイパー\n"
 		"- 武器種: スナイパーライフル\n"
@@ -607,7 +627,8 @@ WEAPON_RESPONSES = {
 		"- 取り出しモーション時間: 1秒\n"
 		"- ヘッドショット有効距離: 38メートル\n"
 		"- ADS時移動速度倍率: x1.0\n"
-		"- 備考: アキンボ状態時にADSすると、スコープは仕様不可だが弾の拡散は狭まる。"),
+		"- 備考: アキンボ状態時にADSすると、スコープは仕様不可だが弾の拡散は狭まる。"
+	),
 	"?ウィングマン": (
 		"🔫 ウィングマン\n"
 		"- 短縮名: ウィングマン\n"
@@ -630,6 +651,33 @@ WEAPON_RESPONSES = {
 WEAPON_IMAGES = {
 	"?ハボック": "https://apexlegends.wiki.gg/images/e/ec/HAVOC_Rifle.png",
 	"?ヘムロック": "https://apexlegends.wiki.gg/images/7/74/Hemlok_Burst_AR.png",
+	"?フラットライン": "https://apexlegends.wiki.gg/images/f/f1/VK-47_Flatline.png",
+	"?R-301": ""https://apexlegends.wiki.gg/images/f/f1/R-301_Carbine.png,
+	"?ネメシス: "https://apexlegends.wiki.gg/images/b/b8/Nemesis_Burst_AR.png",
+	"?オルタネーター: "https://apexlegends.wiki.gg/images/e/e9/Alternator_SMG.png",
+	"?プラウラー: "https://apexlegends.wiki.gg/images/b/bf/Prowler_Burst_PDW.png",
+	"?R-99: "https://apexlegends.wiki.gg/images/d/d5/R-99_SMG.png",
+	"?ボルト: "https://apexlegends.wiki.gg/images/6/60/Volt_SMG.png",
+	"?CAR: "https://apexlegends.wiki.gg/images/1/13/C.A.R._SMG.png",
+	"?ディヴォーション: "https://apexlegends.wiki.gg/images/8/8c/Devotion_LMG.png",
+	"?L-スター: "https://apexlegends.wiki.gg/images/0/01/L-STAR_EMG.png",
+	"?スピットファイア: "https://apexlegends.wiki.gg/images/f/f2/M600_Spitfire.png",
+	"?ランページ: "https://apexlegends.wiki.gg/images/2/20/Rampage_LMG.png",
+	"?G7スカウト: "https://apexlegends.wiki.gg/images/e/eb/G7_Scout.png",
+	"?トリプルテイク: "https://apexlegends.wiki.gg/images/d/d9/Triple_Take.png",
+	"?30-30: "https://apexlegends.wiki.gg/images/8/86/30-30_Repeater.png",
+	"?ボセック: "https://apexlegends.wiki.gg/images/0/02/Bocek_Compound_Bow.png",
+	"?チャージライフル: "https://apexlegends.wiki.gg/images/2/2b/Charge_Rifle.png",
+	"?ロングボウ: "https://apexlegends.wiki.gg/images/4/46/Longbow_DMR.png",
+	"?センチネル: "https://apexlegends.wiki.gg/images/9/91/Sentinel.png",
+	"?クレーバー: "https://apexlegends.wiki.gg/images/f/f5/Kraber_.50-Cal_Sniper.png",
+	"?EVA-8: "https://apexlegends.wiki.gg/images/9/97/EVA-8_Auto.png",
+	"?マスティフ: "https://apexlegends.wiki.gg/images/c/c9/Mastiff_Shotgun.png",
+	"?モザンビーク: "https://apexlegends.wiki.gg/images/a/ae/Mozambique_Shotgun.png",
+	"?ピースキーパー: "https://apexlegends.wiki.gg/images/6/64/Peacekeeper.png",
+	"?RE-45: "https://apexlegends.wiki.gg/images/2/25/RE-45_Auto.png",
+	"?P2020: "https://apexlegends.wiki.gg/images/c/c1/P2020.png",
+	"?ウィングマン: "https://apexlegends.wiki.gg/images/0/09/Wingman.png",
 	# 必要に応じて追加
 }
 
@@ -719,6 +767,29 @@ def handle_message(event):
 					original_content_url=image_url,
 					preview_image_url=image_url
 				))
+		
+		elif user_message == "?ヘルプ":
+			reply_text = (
+				"使用できるコマンド一覧：\n"
+				"・?ヘルプ - コマンドの一覧を表示\n"
+				"・?マップ - 現在のカジュアル・ランク・ミックステープのマップを表示\n"
+				"以下武器情報表示\n"
+				"・?ハボック ・?フラットライン\n"
+				"・?ヘムロック ・?R-301\n"
+				"・?ネメシス\n"
+				"・?オルタネーター ・?プラウラー\n"
+				"・?R-99 ・?ボルト\n"
+				"・?CAR\n"
+				"・?ディヴォーション ・?L-スター\n"
+				"・?スピットファイア ・?ランページ\n"
+				"・?G7スカウト ・?トリプルテイク\n"
+				"・?30-30 ・?ボセック\n"
+				"・?チャージライフル ・?ロングボウ\n"
+				"・?クレーバー ・?センチネル\n"
+				"・?EVA-8 ・?マスティフ\n"
+				"・?ピースキーパー ・?モザンビーク\n"
+				"・?RE-45 ・?ウィングマン\n"
+				"・?ウィングマン"
 
 		else:
 			# 対応していないメッセージは無視
