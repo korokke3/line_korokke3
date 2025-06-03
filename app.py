@@ -291,7 +291,7 @@ WEAPON_RESPONSES = {
 		"- ヘッドショット有効距離: 57メートル\n"
 		"- ADS時移動速度倍率: x0.4"
 	),
-	"?"ランページ: (
+	"?ランページ": (
         "🔫 ランページLMG\n"
 		"- 短縮名: ランページ\n"
 		"- 武器種: ライトマシンガン\n"
@@ -323,7 +323,7 @@ WEAPON_RESPONSES = {
 		"- 射撃モード: セミオート(/2点バースト)\n"
 		"- 連射速度: 3.9発/秒\n"
 		"- 連射速度(バースト): 10発/秒\n"
-		"- バースト射撃ディレイ: 0.375秒
+		"- バースト射撃ディレイ: 0.375秒\n"
 		"- ダメージ: 素36 頭58 脚27\n"
 		"- 装填数: 素10 白15 青18 紫20\n"
 		"- タクティカルリロード時間(秒): 素2.40 白2.32 青2.24 紫2.16\n"
@@ -521,7 +521,6 @@ def handle_message(event):
 
         elif user_message in WEAPON_RESPONSES:
             reply_text = WEAPON_RESPONSES[user_message]
-			image_url = WEAPON_IMAGES.get(user_text)
 
         else:
             return  # それ以外は無視
