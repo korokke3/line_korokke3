@@ -788,8 +788,9 @@ def handle_message(event):
 				"・?クレーバー ・?センチネル\n"
 				"・?EVA-8 ・?マスティフ\n"
 				"・?ピースキーパー ・?モザンビーク\n"
-				"・?RE-45 ・?ウィングマン\n"
-				"・?ウィングマン")
+				"・?RE-45 ・?ウィングマン"
+			)
+			messages = [TextMessage(text=reply_text)]
 				
 		else:
 			# 対応していないメッセージは無視
