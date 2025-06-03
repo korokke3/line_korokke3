@@ -460,7 +460,7 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
-    user_message = event.message.text.strip()
+    user_message = event.message.text
     reply_text = None  # 初期化
 
     with ApiClient(configuration) as api_client:
@@ -519,19 +519,26 @@ def handle_message(event):
                 app.logger.error(f"APIエラー: {e}")
                 reply_text = "APIの取得に失敗しました。後でもう一度試してください。"
 
+       # 武器情報の応答
         elif user_message in WEAPON_RESPONSES:
-            reply_text = WEAPON_RESPONSES[user_message]
+			reply_text = WEAPON_RESPONSES[user_message]
+			messages = [TextMessage(text=reply_text)]
+			image_url = WEAPON_IMAGES.get(user_message)
+			if image_url:
+				messages.append(ImageMessage(original_content_url=image_url, preview_image_url=image_url))
 
-        else:
-            return  # それ以外は無視
+    # 未対応のメッセージは無視
+		else:
+			return
 
-        if reply_text:
-            line_bot_api.reply_message_with_http_info(
-                ReplyMessageRequest(
-                    reply_token=event.reply_token,
-                    messages=[TextMessage(text=reply_text)]
-                )
-            )
+		with ApiClient(configuration) as api_client:
+			line_bot_api = MessagingApi(api_client)
+			line_bot_api.reply_message(
+				ReplyMessageRequest(
+					reply_token=event.reply_token,
+					messages=messages
+				)
+			)
 
 
 if __name__ == "__main__":
