@@ -461,11 +461,12 @@ def callback():
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
 	user_message = event.message.text
-	reply_text = None  # 初期化
+	messages = None  # 最初に定義しておく
 
 	with ApiClient(configuration) as api_client:
 		line_bot_api = MessagingApi(api_client)
 
+		# ?マップの処理
 		if user_message == "?マップ":
 			api_key = os.getenv("APEX_API_KEY")
 			url = f"https://api.mozambiquehe.re/maprotation?auth={api_key}&version=2"
@@ -477,7 +478,6 @@ def handle_message(event):
 
 				reply_lines = []
 
-				# カジュアル
 				if "battle_royale" in data:
 					br = data["battle_royale"]
 					reply_lines.append("\U0001F5FA カジュアル")
@@ -485,7 +485,6 @@ def handle_message(event):
 					reply_lines.append(f"次のマップ: {translate_map_name(br['next']['map'])}")
 					reply_lines.append("")
 
-				# ランク
 				if "ranked" in data:
 					rk = data["ranked"]
 					reply_lines.append("\U0001F3C6 ランクリーグ")
@@ -493,7 +492,6 @@ def handle_message(event):
 					reply_lines.append(f"次のマップ: {translate_map_name(rk['next']['map'])}")
 					reply_lines.append("")
 
-				# LTM
 				if "ltm" in data:
 					ltm = data["ltm"]
 					cur_mode = ltm["current"]
@@ -514,31 +512,36 @@ def handle_message(event):
 					reply_lines.append("現在: ❌ 開催されていません")
 
 				reply_text = "\n".join(reply_lines)
+				messages = [TextMessage(text=reply_text)]
 
 			except Exception as e:
 				app.logger.error(f"APIエラー: {e}")
-				reply_text = "APIの取得に失敗しました。後でもう一度試してください。"
+				messages = [TextMessage(text="APIの取得に失敗しました。後でもう一度試してください。")]
 
-	   # 武器情報の応答
+		# 武器情報の応答
 		elif user_message in WEAPON_RESPONSES:
 			reply_text = WEAPON_RESPONSES[user_message]
 			messages = [TextMessage(text=reply_text)]
 			image_url = WEAPON_IMAGES.get(user_message)
 			if image_url:
-				messages.append(ImageMessage(original_content_url=image_url, preview_image_url=image_url))
+				messages.append(ImageMessage(
+					original_content_url=image_url,
+					preview_image_url=image_url
+				))
 
-	# 未対応のメッセージは無視
 		else:
+			# 対応していないメッセージは無視
 			return
 
-		with ApiClient(configuration) as api_client:
-			line_bot_api = MessagingApi(api_client)
+		# messages が定義された場合のみ返信
+		if messages:
 			line_bot_api.reply_message(
 				ReplyMessageRequest(
 					reply_token=event.reply_token,
 					messages=messages
 				)
 			)
+
 
 
 if __name__ == "__main__":
