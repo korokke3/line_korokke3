@@ -767,7 +767,7 @@ LEGEND_IMAGES = {
 }
 
 #レジェンド返信の添付画像
-LEGEND_IMAGES = {
+ABILITY_IMAGES = {
 	# "?駆け足": "https://apexlegends.wiki.gg/images/e/ec/HAVOC_Rifle.png",
 }
 
