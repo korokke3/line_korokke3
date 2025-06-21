@@ -762,8 +762,13 @@ WEAPON_IMAGES = {
 
 #レジェンド返信の添付画像
 LEGEND_IMAGES = {
-	"?ハボック": "https://apexlegends.wiki.gg/images/e/ec/HAVOC_Rifle.png",
+	# "?ハボック": "https://apexlegends.wiki.gg/images/e/ec/HAVOC_Rifle.png",
 	# a
+}
+
+#レジェンド返信の添付画像
+LEGEND_IMAGES = {
+	# "?駆け足": "https://apexlegends.wiki.gg/images/e/ec/HAVOC_Rifle.png",
 }
 
 def translate_map_name(name):
