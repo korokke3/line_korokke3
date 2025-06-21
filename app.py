@@ -647,8 +647,8 @@ WEAPON_RESPONSES = {
 	)
 }
 
-# 武器の返答辞書
-WEAPON_RESPONSES = {
+# レジェンドの返答辞書
+LEGEND_RESPONSES = {
 	"?バンガロール": (
 		"バンガロール\n"
 		"「あなたの選んだ武器で、勝ってあげる。」\n"
@@ -713,7 +713,7 @@ WEAPON_IMAGES = {
 
 #レジェンド返信の添付画像
 LEGEND_IMAGES = {
-	# "?ハボック": "https://apexlegends.wiki.gg/images/e/ec/HAVOC_Rifle.png",
+	#"?ハボック": "https://apexlegends.wiki.gg/images/e/ec/HAVOC_Rifle.png",
 	# a
 }
 
