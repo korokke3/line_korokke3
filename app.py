@@ -674,7 +674,7 @@ WEAPON_RESPONSES = {
 		"アルティメットアビリティ: 「ローリングサンダー」\n"
 		"一帯をゆっくりと巡る支援砲撃を要請する。\n"
 		"(詳細な情報は「?ローリングサンダー」で表示)"
-	),
+	)
 }
 
 #武器返信の添付画像
@@ -713,7 +713,7 @@ WEAPON_IMAGES = {
 
 #レジェンド返信の添付画像
 LEGEND_IMAGES = {
-	"?ハボック": "https://apexlegends.wiki.gg/images/e/ec/HAVOC_Rifle.png",
+	# "?ハボック": "https://apexlegends.wiki.gg/images/e/ec/HAVOC_Rifle.png",
 	# a
 }
 
