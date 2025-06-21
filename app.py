@@ -647,6 +647,36 @@ WEAPON_RESPONSES = {
 	)
 }
 
+# 武器の返答辞書
+WEAPON_RESPONSES = {
+	"?バンガロール": (
+		"バンガロール\n"
+		"「あなたの選んだ武器で、勝ってあげる。」\n"
+		"職業軍人\n"
+		"\n"
+		"本名: アニータ・ウィリアムズ\n"
+		"年齢: 40歳\n"
+		"生年: 2695\n"
+		"性別: 女性\n"
+		"身長: 183cm\n"
+		"体重: 82kg\n"
+		"母星: グリッドアイアン\n"
+		"レジェンド説明文: 「?バンガロール説明文」で表示\n"
+		"\n"
+		"パッシブアビリティ: 「駆け足」\n"
+		"スプリント中に被弾すると、移動速度が短時間向上する\n"
+		"(詳細な情報は「?駆け足」で表示\n"
+		"\n"
+		"戦術アビリティ：「スモークランチャー」\n"
+		"発煙缶を高速射出し、着弾時の爆発で煙の壁を作り出す。\n"
+		"(詳細な情報は「?スモークランチャー」で表示\n"
+		"\n"
+		"アルティメットアビリティ: 「ローリングサンダー」\n"
+		"一帯をゆっくりと巡る支援砲撃を要請する。\n"
+		"(詳細な情報は「?ローリングサンダー」で表示)"
+	),
+}
+
 #武器返信の添付画像
 WEAPON_IMAGES = {
 	"?ハボック": "https://apexlegends.wiki.gg/images/e/ec/HAVOC_Rifle.png",
@@ -679,6 +709,12 @@ WEAPON_IMAGES = {
 	"?P2020": "https://apexlegends.wiki.gg/images/c/c1/P2020.png",
 	"?ウィングマン": "https://apexlegends.wiki.gg/images/0/09/Wingman.png",
 	# 必要に応じて追加
+}
+
+#レジェンド返信の添付画像
+LEGEND_IMAGES = {
+	"?ハボック": "https://apexlegends.wiki.gg/images/e/ec/HAVOC_Rifle.png",
+	# a
 }
 
 def translate_map_name(name):
@@ -762,6 +798,17 @@ def handle_message(event):
 			reply_text = WEAPON_RESPONSES[user_message]
 			messages = [TextMessage(text=reply_text)]
 			image_url = WEAPON_IMAGES.get(user_message)
+			if image_url:
+				messages.append(ImageMessage(
+					original_content_url=image_url,
+					preview_image_url=image_url
+				))
+				
+		# レジェンド情報の応答
+		elif user_message in LEGEND_RESPONSES:
+			reply_text = LEGEND_RESPONSES[user_message]
+			messages = [TextMessage(text=reply_text)]
+			image_url = LEGEND_IMAGES.get(user_message)
 			if image_url:
 				messages.append(ImageMessage(
 					original_content_url=image_url,
