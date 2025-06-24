@@ -878,7 +878,7 @@ def handle_message(event):
 			#	messages.append(ImageMessage(
 			#		original_content_url=image_url,
 			#		preview_image_url=image_url
-				))
+			#	))
 
 		if user_message == "時間割":
 			reply_text = (
