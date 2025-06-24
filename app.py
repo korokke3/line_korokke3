@@ -880,7 +880,7 @@ def handle_message(event):
 					preview_image_url=image_url
 				))
 
-		elif user_message == "時間割"
+		if user_message == "時間割":
 			reply_text = (
 				"月曜日の時間割は、\n"
 				"1,理科\n"
