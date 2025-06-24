@@ -925,8 +925,7 @@ def handle_message(event):
 				"となっております♪\n"
 				"特別授業や変更となっている日は 、\n"
 				"他の人に聞いたり教えたりしてくださいね。"
-			)
-			messages = [TextMessage(text=reply_text)]
+			))
 		
 		elif user_message == "?ヘルプ":
 			reply_text = (
