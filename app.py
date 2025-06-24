@@ -873,7 +873,7 @@ def handle_message(event):
 		elif user_message in ABILITY_RESPONSES:
 			reply_text = ABILITY_RESPONSES[user_message]
 			messages = [TextMessage(text=reply_text)]
-			image_url = ABILITY_IMAGES.get(user_message)
+			# image_url = ABILITY_IMAGES.get(user_message)
 			if image_url:
 				messages.append(ImageMessage(
 					original_content_url=image_url,
