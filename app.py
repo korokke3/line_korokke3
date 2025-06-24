@@ -952,10 +952,6 @@ def handle_message(event):
 			)
 			messages = [TextMessage(text=reply_text)]
 				
-		else:
-			# 対応していないメッセージは無視
-			return
-
 		# messages が定義された場合のみ返信
 		if messages:
 			line_bot_api.reply_message(
