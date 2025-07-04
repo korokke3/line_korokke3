@@ -915,6 +915,25 @@ def handle_message(event):
 
 		# 辞書機能の処理
 		elif user_message.startswith("辞書 "):
+		# 単語だけで呼び出すとき（例：M拠点）
+        else:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            term = user_message.strip()
+            user_id = event.source.user_id
+
+            # 公開 or 自分専用の単語を探す
+            cursor.execute(
+                "SELECT content FROM dictionary WHERE term = ? AND (is_private = 0 OR added_by = ?)",
+                (term, user_id)
+            )
+            row = cursor.fetchone()
+            conn.close()
+
+            if row:
+                reply_text = f"{term}：{row['content']}"
+                messages = [TextMessage(text=reply_text)]
+
 			args = user_message.split(maxsplit=2)
 			if len(args) < 2:
 				messages = [TextMessage(text="辞書コマンドの形式が正しくありません。")]
@@ -943,25 +962,7 @@ def handle_message(event):
 						messages = [TextMessage(text=f"削除できませんでした。自分が追加した単語のみ削除できます。")]
 				else:
 					messages = [TextMessage(text="「辞書 追加 単語 内容」または「辞書 削除 単語」の形式で送信してください。")]
-					
-		# 辞書呼び出し処理（ユーザーが単語だけ送ってきた場合）
-        elif user_message.strip():
-            conn = get_db_connection()
-            cursor = conn.cursor()
-            term = user_message.strip()
-            user_id = event.source.user_id
 
-            # まずは自分専用のものを検索
-            cursor.execute(
-                "SELECT content FROM dictionary WHERE term = ? AND (is_private = 0 OR added_by = ?)",
-                (term, user_id)
-            )
-            row = cursor.fetchone()
-            conn.close()
-
-            if row:
-                reply_text = f"{term}：{row['content']}"
-                messages = [TextMessage(text=reply_text)]
 
 		if user_message == "時間割":
 			reply_text = (
