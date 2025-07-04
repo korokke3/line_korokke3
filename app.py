@@ -915,53 +915,34 @@ def handle_message(event):
 
 		# 辞書機能の処理
 		elif user_message.startswith("辞書 "):
-		# 単語だけで呼び出すとき（例：M拠点）
-        else:
-            conn = get_db_connection()
-            cursor = conn.cursor()
-            term = user_message.strip()
-            user_id = event.source.user_id
-
-            # 公開 or 自分専用の単語を探す
-            cursor.execute(
-                "SELECT content FROM dictionary WHERE term = ? AND (is_private = 0 OR added_by = ?)",
-                (term, user_id)
-            )
-            row = cursor.fetchone()
-            conn.close()
-
-            if row:
-                reply_text = f"{term}：{row['content']}"
-                messages = [TextMessage(text=reply_text)]
-
-			args = user_message.split(maxsplit=2)
-			if len(args) < 2:
-				messages = [TextMessage(text="辞書コマンドの形式が正しくありません。")]
-			else:
-				subcmd = args[1]
-			# 追加コマンド
-				if subcmd == "追加" and len(args) == 3:
-					parts = args[2].split(maxsplit=1)
-					if len(parts) < 2:
-						messages = [TextMessage(text="「辞書 追加 単語 内容」の形式で送信してください。")]
-					else:
-						term = parts[0]
-						content = parts[1]
-						is_private = False
-						if content.endswith("--s") or content.endswith("-self"):
-							is_private = True
-							content = content.rsplit(maxsplit=1)[0]  # 最後の --s を除去
-						add_dictionary_entry(term, content, event.source.user_id, is_private)
-						messages = [TextMessage(text=f"「{term}」を辞書に追加しました。{'（自分専用）' if is_private else ''}")]
-				# 削除コマンド
-				elif subcmd == "削除" and len(args) == 3:
-					term = args[2]
-					if delete_dictionary_entry(term, event.source.user_id):
-						messages = [TextMessage(text=f"「{term}」を削除しました。")]
-					else:
-						messages = [TextMessage(text=f"削除できませんでした。自分が追加した単語のみ削除できます。")]
-				else:
-					messages = [TextMessage(text="「辞書 追加 単語 内容」または「辞書 削除 単語」の形式で送信してください。")]
+		    args = user_message.split(maxsplit=2)
+		    if len(args) < 2:
+		        messages = [TextMessage(text="辞書コマンドの形式が正しくありません。")]
+		    else:
+		        subcmd = args[1]
+		        # 追加コマンド
+		        if subcmd == "追加" and len(args) == 3:
+		            parts = args[2].split(maxsplit=1)
+		            if len(parts) < 2:
+		                messages = [TextMessage(text="「辞書 追加 単語 内容」の形式で送信してください。")]
+		            else:
+		                term = parts[0]
+		                content = parts[1]
+		                is_private = False
+		                if content.endswith("--s") or content.endswith("-self"):
+		                    is_private = True
+		                    content = content.rsplit(maxsplit=1)[0]  # 最後の --s を除去
+		                add_dictionary_entry(term, content, event.source.user_id, is_private)
+		                messages = [TextMessage(text=f"「{term}」を辞書に追加しました。{'（自分専用）' if is_private else ''}")]
+		        # 削除コマンド
+		        elif subcmd == "削除" and len(args) == 3:
+		            term = args[2]
+		            if delete_dictionary_entry(term, event.source.user_id):
+		                messages = [TextMessage(text=f"「{term}」を削除しました。")]
+		            else:
+		                messages = [TextMessage(text=f"削除できませんでした。自分が追加した単語のみ削除できます。")]
+		        else:
+		            messages = [TextMessage(text="「辞書 追加 単語 内容」または「辞書 削除 単語」の形式で送信してください。")]
 
 		# 辞書呼び出し（ただの単語を送信された場合）
 		elif True:
