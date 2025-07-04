@@ -963,7 +963,7 @@ def handle_message(event):
 				else:
 					messages = [TextMessage(text="「辞書 追加 単語 内容」または「辞書 削除 単語」の形式で送信してください。")]
 
-# 辞書呼び出し（ただの単語を送信された場合）
+		# 辞書呼び出し（ただの単語を送信された場合）
 		elif True:
     		conn = get_db_connection()
     		cursor = conn.cursor()
