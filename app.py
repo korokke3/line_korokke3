@@ -943,7 +943,25 @@ def handle_message(event):
 						messages = [TextMessage(text=f"削除できませんでした。自分が追加した単語のみ削除できます。")]
 				else:
 					messages = [TextMessage(text="「辞書 追加 単語 内容」または「辞書 削除 単語」の形式で送信してください。")]
+					
+		# 辞書呼び出し処理（ユーザーが単語だけ送ってきた場合）
+        elif user_message.strip():
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            term = user_message.strip()
+            user_id = event.source.user_id
 
+            # まずは自分専用のものを検索
+            cursor.execute(
+                "SELECT content FROM dictionary WHERE term = ? AND (is_private = 0 OR added_by = ?)",
+                (term, user_id)
+            )
+            row = cursor.fetchone()
+            conn.close()
+
+            if row:
+                reply_text = f"{term}：{row['content']}"
+                messages = [TextMessage(text=reply_text)]
 
 		if user_message == "時間割":
 			reply_text = (
