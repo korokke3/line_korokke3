@@ -880,6 +880,38 @@ def handle_message(event):
 			#		preview_image_url=image_url
 			#	))
 
+		# 辞書機能の処理
+		elif user_message.startswith("辞書 "):
+			args = user_message.split(maxsplit=2)
+			if len(args) < 2:
+				messages = [TextMessage(text="辞書コマンドの形式が正しくありません。")]
+			else:
+				subcmd = args[1]
+			# 追加コマンド
+				if subcmd == "追加" and len(args) == 3:
+					parts = args[2].split(maxsplit=1)
+					if len(parts) < 2:
+						messages = [TextMessage(text="「辞書 追加 単語 内容」の形式で送信してください。")]
+					else:
+						term = parts[0]
+						content = parts[1]
+						is_private = False
+						if content.endswith("--s") or content.endswith("-self"):
+							is_private = True
+							content = content.rsplit(maxsplit=1)[0]  # 最後の --s を除去
+						add_dictionary_entry(term, content, event.source.user_id, is_private)
+						messages = [TextMessage(text=f"「{term}」を辞書に追加しました。{'（自分専用）' if is_private else ''}")]
+				# 削除コマンド
+				elif subcmd == "削除" and len(args) == 3:
+					term = args[2]
+					if delete_dictionary_entry(term, event.source.user_id):
+						messages = [TextMessage(text=f"「{term}」を削除しました。")]
+					else:
+						messages = [TextMessage(text=f"削除できませんでした。自分が追加した単語のみ削除できます。")]
+				else:
+					messages = [TextMessage(text="「辞書 追加 単語 内容」または「辞書 削除 単語」の形式で送信してください。")]
+
+
 		if user_message == "時間割":
 			reply_text = (
 				"月曜日の時間割は、\n"
