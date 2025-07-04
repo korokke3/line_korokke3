@@ -3,6 +3,8 @@
 import os
 import sys
 import requests
+import sqlite3
+import re
 from flask import Flask, request, abort
 from linebot.v3 import WebhookHandler
 from linebot.v3.messaging import (
@@ -25,6 +27,37 @@ if channel_secret is None or channel_access_token is None:
 
 handler = WebhookHandler(channel_secret)
 configuration = Configuration(access_token=channel_access_token)
+import sqlite3
+
+# DBに接続する関数
+def get_db_connection():
+    conn = sqlite3.connect("dictionary.db")
+    conn.row_factory = sqlite3.Row
+    return conn
+
+# 辞書を追加する関数
+def add_dictionary_entry(term, content, user_id, is_private):
+    conn = get_db_connection()
+    conn.execute(
+        "INSERT OR REPLACE INTO dictionary (term, content, added_by, is_private) VALUES (?, ?, ?, ?)",
+        (term, content, user_id, int(is_private))
+    )
+    conn.commit()
+    conn.close()
+
+# 辞書を削除する関数
+def delete_dictionary_entry(term, user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM dictionary WHERE term = ?", (term,))
+    row = cursor.fetchone()
+    if row and row["added_by"] == user_id:
+        cursor.execute("DELETE FROM dictionary WHERE term = ?", (term,))
+        conn.commit()
+        conn.close()
+        return True
+    conn.close()
+    return False
 
 # 英語マップ名→日本語マップ名の辞書
 MAP_TRANSLATIONS = {
@@ -879,38 +912,6 @@ def handle_message(event):
 			#		original_content_url=image_url,
 			#		preview_image_url=image_url
 			#	))
-
-		# 辞書機能の処理
-		elif user_message.startswith("辞書 "):
-			args = user_message.split(maxsplit=2)
-			if len(args) < 2:
-				messages = [TextMessage(text="辞書コマンドの形式が正しくありません。")]
-			else:
-				subcmd = args[1]
-			# 追加コマンド
-				if subcmd == "追加" and len(args) == 3:
-					parts = args[2].split(maxsplit=1)
-					if len(parts) < 2:
-						messages = [TextMessage(text="「辞書 追加 単語 内容」の形式で送信してください。")]
-					else:
-						term = parts[0]
-						content = parts[1]
-						is_private = False
-						if content.endswith("--s") or content.endswith("-self"):
-							is_private = True
-							content = content.rsplit(maxsplit=1)[0]  # 最後の --s を除去
-						add_dictionary_entry(term, content, event.source.user_id, is_private)
-						messages = [TextMessage(text=f"「{term}」を辞書に追加しました。{'（自分専用）' if is_private else ''}")]
-				# 削除コマンド
-				elif subcmd == "削除" and len(args) == 3:
-					term = args[2]
-					if delete_dictionary_entry(term, event.source.user_id):
-						messages = [TextMessage(text=f"「{term}」を削除しました。")]
-					else:
-						messages = [TextMessage(text=f"削除できませんでした。自分が追加した単語のみ削除できます。")]
-				else:
-					messages = [TextMessage(text="「辞書 追加 単語 内容」または「辞書 削除 単語」の形式で送信してください。")]
-
 
 		if user_message == "時間割":
 			reply_text = (
