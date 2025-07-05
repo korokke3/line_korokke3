@@ -962,6 +962,45 @@ def handle_message(event):
 		        reply_text = f"{term}：{row['content']}"
 		        messages = [TextMessage(text=reply_text)]
 
+		# 「辞書」のみ または 「辞書 [頭文字] [ページ数]」で一覧表示
+		elif user_message.strip().startswith("辞書"):
+		    match = re.match(r"辞書(?:\s+([^\d\s])?)?(?:\s+(\d+))?", user_message.strip())
+		    initial = match.group(1) if match else None
+		    page = int(match.group(2)) if match and match.group(2) else 1
+		
+		    conn = get_db_connection()
+		    cursor = conn.cursor()
+		    user_id = event.source.user_id
+		
+		    # 条件付きクエリ作成
+		    sql = "SELECT term, content, added_by, is_private FROM dictionary WHERE (is_private = 0 OR added_by = ?)"
+		    params = [user_id]
+		    if initial:
+		        sql += " AND term LIKE ?"
+		        params.append(initial + "%")
+		    
+		    sql += " ORDER BY term ASC"
+		    cursor.execute(sql, params)
+		    rows = cursor.fetchall()
+		    conn.close()
+		
+		    if not rows:
+		        messages = [TextMessage(text="一致する単語が見つかりませんでした。")]
+		    else:
+		        per_page = 10
+		        total_pages = (len(rows) + per_page - 1) // per_page
+		        page = max(1, min(page, total_pages))
+		        start = (page - 1) * per_page
+		        end = start + per_page
+		        display_rows = rows[start:end]
+		
+		        reply_lines = [f"📘 登録単語一覧（{page}/{total_pages}ページ）"]
+		        for row in display_rows:
+		            privacy = "（自分専用）" if row["is_private"] and row["added_by"] == user_id else ""
+		            if not row["is_private"] or row["added_by"] == user_id:
+		                reply_lines.append(f"・{row['term']}：{row['content']}{privacy}")
+		        messages = [TextMessage(text="\n".join(reply_lines))]
+
 		if user_message == "時間割":
 			reply_text = (
 				"月曜日の時間割は、\n"
