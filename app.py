@@ -29,16 +29,6 @@ handler = WebhookHandler(channel_secret)
 configuration = Configuration(access_token=channel_access_token)
 import sqlite3
 
-import requests
-
-def fetch_predator_border():
-    api_key = os.getenv("MOZAMBIQUE_API_KEY")
-    url = f"https://api.mozambiquehe.re/predator?auth={api_key}"
-    res = requests.get(url)
-    if res.status_code == 200:
-        return res.json().get("platforms", {})
-    return None
-
 # DBに接続する関数
 def get_db_connection():
     conn = sqlite3.connect("dictionary.db")
@@ -1097,4 +1087,5 @@ def handle_message(event):
 if __name__ == "__main__":
 	port = int(os.environ.get("PORT", 5000))
 	app.run(host="0.0.0.0", port=port)
+
 
