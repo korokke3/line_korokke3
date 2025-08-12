@@ -85,6 +85,63 @@ MAP_TRANSLATIONS = {
 	"Unknown": "不明、エラー"
 }
 
+def fetch_predator_border(apex_api_key: str) -> str:
+    """
+    mozambiquehe.re の /predator エンドポイントを叩き、
+    プラットフォーム別のボーダー情報を文字列で返す。
+    失敗時は例外を投げる。
+    """
+    if not apex_api_key:
+        raise ValueError("APEX_API_KEY が設定されていません。")
+
+    url = f"https://api.mozambiquehe.re/predator?auth={apex_api_key}"
+    resp = requests.get(url, timeout=10)
+    resp.raise_for_status()
+    data = resp.json()
+
+    # API の応答形式はいくつかのバリエーションがあるので柔軟に探索する
+    if isinstance(data, dict):
+        if "RP" in data and isinstance(data["RP"], dict):
+            container = data["RP"]
+        elif "rp" in data and isinstance(data["rp"], dict):
+            container = data["rp"]
+        elif "predator" in data and isinstance(data["predator"], dict):
+            container = data["predator"]
+        else:
+            container = data  # すでにプラットフォーム辞書の場合
+    else:
+        raise ValueError("APIの返却形式が想定外です。")
+
+    # 表示順とラベル（必要なら追加でマップ）
+    platform_order = [("PC", "PC"), ("PS4", "PlayStation"), ("X1", "Xbox")]
+    lines = ["【プレデターボーダー】"]
+
+    for key, label in platform_order:
+        if key not in container:
+            continue
+        p = container[key]
+        if not isinstance(p, dict):
+            continue
+        # よくあるフィールド名を順に探す
+        val = p.get("val") or p.get("value") or p.get("border")
+        total_masters = p.get("totalMasters") or p.get("totalMastersAndPreds") or p.get("total_masters")
+        total_preds = p.get("totalPredators") or p.get("total_predators")
+
+        lines.append(
+            f"{label}: {val if val is not None else '不明'} RP（マスター数: {total_masters if total_masters is not None else '不明'} / プレデター数: {total_preds if total_preds is not None else '不明'}）"
+        )
+
+    # もし上で何も追加されていない場合は、取得したキーを列挙してフォールバック表示
+    if len(lines) == 1:
+        for k, v in container.items():
+            if isinstance(v, dict):
+                val = v.get("val") or v.get("value") or "不明"
+            else:
+                val = "不明"
+            lines.append(f"{k}: {val}")
+
+    return "\n".join(lines)
+
 # 武器の返答辞書
 WEAPON_RESPONSES = {
 	"?ハボック": (
@@ -1087,5 +1144,6 @@ def handle_message(event):
 if __name__ == "__main__":
 	port = int(os.environ.get("PORT", 5000))
 	app.run(host="0.0.0.0", port=port)
+
 
 
