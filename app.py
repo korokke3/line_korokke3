@@ -937,6 +937,16 @@ def handle_message(event):
 				app.logger.error(f"APIエラー: {e}")
 				messages = [TextMessage(text="APIの取得に失敗しました。後でもう一度試してください。")]
 
+		# プレデターボーダー表示
+		elif user_message == "?ボーダー":
+			api_key = os.getenv("APEX_API_KEY")
+			try:
+				border_text = fetch_predator_border(api_key)
+				messages = [TextMessage(text=border_text)]
+			except Exception as e:
+				app.logger.error("ボーダー取得エラー: %s", e)
+				messages = [TextMessage(text="プレデターボーダーの取得に失敗しました。後でもう一度試してください。")]
+
 		# 武器情報の応答
 		elif user_message in WEAPON_RESPONSES:
 			reply_text = WEAPON_RESPONSES[user_message]
@@ -1144,6 +1154,7 @@ def handle_message(event):
 if __name__ == "__main__":
 	port = int(os.environ.get("PORT", 5000))
 	app.run(host="0.0.0.0", port=port)
+
 
 
 
